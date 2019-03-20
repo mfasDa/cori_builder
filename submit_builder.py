@@ -8,7 +8,7 @@ import sys
 scriptrepo = os.path.abspath(os.path.dirname(sys.argv[0]))
 nersc_host = os.environ["NERSC_HOST"]
 
-def create_buildscript(buildsciptname, packagerepo, installation, defaults, packagename):
+def create_buildscript(buildsciptname, packagerepo, installation, defaults, packagename, maxhours):
     buildscriptdir = os.path.abspath(os.path.dirname(buildsciptname))
     if not os.path.exists(buildscriptdir):
         os.makedirs(buildscriptdir, 0755)
@@ -25,6 +25,7 @@ def create_buildscript(buildsciptname, packagerepo, installation, defaults, pack
         if "cori" in nersc_host:
             myscript.write("#SBATCH --constraint=haswell\n")
         myscript.write("#SBATCH --nodes=1\n")
+        myscript.write("#SBATCH --time=s%d:00:00\n" %maxhours)
         myscript.write("#SBATCH --image=docker:mfasel/cc7-alice:latest\n")
         myscript.write("#SBATCH --output=%s\n" %logfile)
         myscript.write("#SBATCH --license=cscratch1,project\n") 
@@ -43,5 +44,6 @@ if __name__ == "__main__":
     parser.add_argument("installation", metavar="INSTALLATION", help="Path to the directory containing alidist and development packages")
     parser.add_argument("packagename", metavar="PACKAGENAME", help="Name of the package to be built")
     parser.add_argument("-d", "--defaults", type=str, default="root6", help="Build defaults")
+    parser.add_argument("-t", "--maxtime", type=int, default=5, help"Max. allowed time for build (hours)")
     args = parser.parse_args()
     submitBuildJob(args.repo, args.installation, args.defaults, args.packagename)
