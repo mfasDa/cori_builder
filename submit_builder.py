@@ -14,23 +14,22 @@ def create_buildscript(buildsciptname, packagerepo, installation, defaults, pack
         os.makedirs(buildscriptdir, 0755)
     if os.path.exists(buildsciptname):
         os.remove(buildsciptname)
-    timestamp = datetime.now.strftime("%Y%m%d_%H%M")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
     logfile = "%s/logs/%s_%s.log" %(packagerepo, packagename, timestamp)
     logdir = os.path.abspath(os.path.dirname(logfile))
     if not os.path.exists(logdir):
         os.makedirs(logdir, 0755)
     with open(buildsciptname, "w") as myscript:
         myscript.write("#! /bin/bash\n")
-        myscript.write("#SBATCH -qos regular\n")
+        myscript.write("#SBATCH --qos regular\n")
         if "cori" in nersc_host:
             myscript.write("#SBATCH --constraint=haswell\n")
-        myscript.write("#SBATCH --nodes=1")
+        myscript.write("#SBATCH --nodes=1\n")
         myscript.write("#SBATCH --image=docker:mfasel/cc7-alice:latest\n")
         myscript.write("#SBATCH --output=%s\n" %logfile)
-        myscript.write("#SBATCH --volume=$CSCRATCH\n")
-        myscript.write("#SBATCH --volume=/project/projectdirs/alice/software\n")
+        myscript.write("#SBATCH --license=cscratch1,project\n") 
         myscript.write("shifter %s/runBuild.sh %s %s %s %s\n" %(scriptrepo, packagerepo, installation, defaults, packagename))
-        myscript.write("rm %s\n")
+        myscript.write("rm %s\n" %buildsciptname)
         myscript.write("echo Done ...\n")
 
 def submitBuildJob(packagerepo, installation, defaults, packagename):
