@@ -9,7 +9,7 @@ installation=$2
 defaults=$3
 packagename=$4
 
-source /opt/rh/devtoolset-7 enable
+source /opt/rh/devtoolset-7/enable
 cd $packagerepo/$installation
-cmd=$(printf "/project/projectdirs/alice/software/alibuild/aliBuild -d -z -w ../sw --defaults %s build %s" $defaults $packagename)
+cmd=$(printf "aliBuild -d -z -w ../sw --defaults %s build %s" $defaults $packagename)
 eval $cmd
